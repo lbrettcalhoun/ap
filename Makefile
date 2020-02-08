@@ -22,7 +22,7 @@ LDFLAGS = -Teagle.app.v6.ld
 # So here is how this works ... when you execute "make" it compiles and assembles (BUT IT DOESN'T LINK) the 
 # print_funcs.c and user_main.c files.  Then the linker links both of those files together with all the libraries to
 # form our executable (user_main).  Finally, it uses esptool.py to transform the executable into our 2 binaries which
-# make up the firmware.  These actions huser_mainpen automatically with just "make" based on the chaining:
+# make up the firmware.  These actions happen automatically with just "make" based on the chaining:
 # print_funcs.c --> print_funcs.o and then user_main.c --> user_main.o and then user_main.o and print_funcs.o --> user_main (via linker)
 # and then user_main --> user_main-0x00000.bin (and user_main-0x10000.bin). 
 user_main-0x00000.bin: user_main
