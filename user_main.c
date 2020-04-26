@@ -96,6 +96,9 @@ void ICACHE_FLASH_ATTR user_init (void) {
   
   char const *SSID = WIFI_SSID;
   char const *PASSWORD = WIFI_PASSWORD;
+  struct softap_config config;
+
+  wifi_softap_get_config(&config);
   
   // Use this function so that you can actually read the os_printf output ...
   // otherwise you get the standard baud rate don't match gibberish instead of
@@ -107,37 +110,26 @@ void ICACHE_FLASH_ATTR user_init (void) {
   // Print welcome messages ... these are in my custom module print_funcs.c
   print_welcome();
   
-  // Get the current AP configuration
-  struct softap_config config; 
-  if (wifi_softap_get_config(&config)) {; 
-    print_config(&config);
-  } else {
-    os_printf("Error getting existing AP Configuration\n");
-  }
-  
-  // If the parameters are not correct for SSID, password, or authmode
-  // (this can happen when you reflash esp_init_data_default.bin or blank.bin)
-  // then load the correct parameters and redisplay the configuration.
   // Don't forget that config.ssid needs to be cast to a pointer because SSID is
   // itself a pointer (look above where you defined it). Also notice how we have to
   // null the SSID and password pointers or you will have junk left over from the 
   // previous run.  We use os_bzero to null these pointers (aka char arrays).
-  //
-  // Hmmm ... for some reason this isn't working ... evdidently SSD and config.ssid are NOT
-  // exactly the same ... if you use os_printf wth %x you can see the difference.  putchar()
-  // causes an error in compile ... wonder how we can find the acutal contents of config.ssid???
-  // How about the xtensa_lx106_elf_gdb???
-  if ((char *)config.ssid != SSID || (char *)config.password != PASSWORD || config.authmode != AUTH_WPA2_PSK) {
-    config.ssid_len = 8;
-    os_bzero(&config.ssid, 32);
-    os_memcpy(&config.ssid, SSID, 8);
-    os_bzero(&config.password, 64);
-    os_memcpy(&config.password, PASSWORD, 10);
-    config.authmode = AUTH_WPA2_PSK;
-    if (wifi_softap_set_config(&config)) {
-      print_config(&config);
-    } else {
-      os_printf("Error setting AP Configuration\n");
-    }
+  // Note: Do NOT include an extra byte for trailing NULL in ssid_len or os_memcpy SSID.
+  // Use the exact number of characters in WIFI_SSID. Same with PASSWORD and WIFI_PASSWORD.
+  // Otherwise you will end up wth an SSID like this: "ESPXXXX\x00". Yes, the hex value for
+  // NULL will be appended to your SSID. A program like Network Manager will gracefully
+  // interpret the NULL and dispaly the SSID as "ESPXXXX". But you will see the true SSID
+  // in Kismet or "sudo iw wlan0 list". 
+  
+  config.ssid_len = 7;
+  os_bzero(&config.ssid, 32);
+  os_memcpy(&config.ssid, SSID, 7);
+  os_bzero(&config.password, 64);
+  os_memcpy(&config.password, PASSWORD, 10);
+  config.authmode = AUTH_WPA2_PSK;
+  if (wifi_softap_set_config(&config)) {
+    print_config(&config);
+  } else {
+    os_printf("Error setting AP Configuration\n");
   }
 }

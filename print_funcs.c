@@ -35,6 +35,7 @@ void ICACHE_FLASH_ATTR print_welcome(void) {
 void ICACHE_FLASH_ATTR print_config(struct softap_config *ptrconfig) {
  os_printf("AP Configuration:\n");
  os_printf("SSID: %s\n", ptrconfig->ssid);
- os_printf("Password:  %s\n", ptrconfig->password);
+ os_printf("Password: %s\n", ptrconfig->password);
  os_printf("Auth Mode: %d\n", ptrconfig->authmode);
+ os_printf("Op Mode: %d\n", wifi_get_opmode());
 }

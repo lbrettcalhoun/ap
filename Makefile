@@ -37,7 +37,7 @@ print_funcs.o: print_funcs.c
 
 # This one doesn't get called automatically.  Use "make flash" to actually flash the firmware to the ESP8266
 flash: user_main-0x00000.bin
-	esptool.py write_flash 0 user_main-0x00000.bin 0x10000 user_main-0x10000.bin
+	esptool.py --baud 115200 write_flash 0 user_main-0x00000.bin 0x10000 user_main-0x10000.bin
 
 # Use make clean to get rid of the firmware and the executables and the object fles
 clean:
